@@ -1,0 +1,13 @@
+-O3
+-DNDEBUG
+-flto
+-Wall
+-Wextra
+-Wpedantic
+-Wno-padded
+-Wno-unknown-warning-option
+-fstack-protector-strong
+-fpie
+-fPIE
+-fno-omit-frame-pointer
+-stdlib=libc++
