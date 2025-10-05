@@ -52,7 +52,7 @@ if(BUILD_TESTS)
     set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
     FetchContent_MakeAvailable(googletest)
     
-    add_executable(tests tests/test.cpp)
+    add_executable(tests tests/unit_test_avl.cpp tests/test_solution.cpp)
     target_include_directories(tests PRIVATE src/tree)
     target_link_libraries(tests GTest::gtest_main)
 

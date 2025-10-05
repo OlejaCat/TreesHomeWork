@@ -106,8 +106,8 @@ TEST(AvlTreeTest, TestDistance) {
   EXPECT_NE(it_upper, tree.end());
   EXPECT_EQ(tree.get_key(it_upper), 7);
 
-  int distance = tree.distance(it_lower, it_upper);
-  EXPECT_EQ(distance, 2);
+  long dist = tree.distance(it_lower, it_upper);
+  EXPECT_EQ(dist, 2);
 }
 
 TEST(AvlTreeTest, TestDistanceAfterEnd) {
@@ -124,8 +124,6 @@ TEST(AvlTreeTest, TestDistanceAfterEnd) {
   auto it_upper = tree.upper_bound(7);
   EXPECT_EQ(it_upper, tree.end());
 
-  tree.print_tree();
-
-  int distance = tree.distance(it_lower, it_upper);
-  EXPECT_EQ(distance, 3);
+  long dist = tree.distance(it_lower, it_upper);
+  EXPECT_EQ(dist, 3);
 }

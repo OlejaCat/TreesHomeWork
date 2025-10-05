@@ -47,9 +47,11 @@ class AvlTree {
   Iterator next(Iterator node) const;
   Iterator prev(Iterator node) const;
 
-  Iterator lower_bound(const KeyType& key);
-  Iterator upper_bound(const KeyType& key);
-  int distance(Iterator begin, Iterator end) const;
+  Iterator lower_bound(const KeyType& key) const;
+  Iterator upper_bound(const KeyType& key) const;
+
+  long distance(Iterator begin, Iterator end) const;
+
 
   void print_tree();
 
@@ -68,8 +70,8 @@ class AvlTree {
   int get_balance(Node* node);
   void update_height(Node* node);
 
-  Iterator find_lower_bound(Iterator node, const KeyType& key);
-  Iterator find_upper_bound(Iterator node, const KeyType& key);
+  Iterator find_lower_bound(Iterator node, const KeyType& key) const;
+  Iterator find_upper_bound(Iterator node, const KeyType& key) const;
 
   Iterator find_bigger(Iterator node) const;
   Iterator find_smaller(Iterator node) const;
@@ -84,6 +86,30 @@ class AvlTree {
 
   std::size_t size_ = 0;
 };
+
+template <typename KeyType, typename Container>
+long AvlTree<KeyType, Container>::distance(Iterator begin, Iterator end) const {
+  if (begin == end) {
+    return 0;
+  }
+
+  if (begin == nullptr) {
+    return -1;
+  }
+
+  long count = 0;
+  Iterator current = begin;
+  while (current != nullptr && current != end) {
+    ++count;
+    current = find_bigger(current);
+  }
+
+  if (current == end) {
+    return count;
+  }
+
+  return -1;
+}
 
 template <typename KeyType, typename Comparator>
 AvlTree<KeyType, Comparator>::AvlTree(const Comparator& comparator)
@@ -140,38 +166,14 @@ AvlTree<KeyType, Comparator>::Iterator AvlTree<KeyType, Comparator>::prev(
 
 template <typename KeyType, typename Comparator>
 AvlTree<KeyType, Comparator>::Iterator
-AvlTree<KeyType, Comparator>::lower_bound(const KeyType& key) {
+AvlTree<KeyType, Comparator>::lower_bound(const KeyType& key) const {
   return find_lower_bound(root_, key);
 }
 
 template <typename KeyType, typename Comparator>
 AvlTree<KeyType, Comparator>::Iterator
-AvlTree<KeyType, Comparator>::upper_bound(const KeyType& key) {
+AvlTree<KeyType, Comparator>::upper_bound(const KeyType& key) const {
   return find_upper_bound(root_, key);
-}
-
-template <typename KeyType, typename Comparator>
-int AvlTree<KeyType, Comparator>::distance(Iterator begin, Iterator end) const {
-  if (begin == end) {
-    return 0;
-  }
-
-  if (begin == nullptr) {
-    return -1;
-  }
-
-  int count = 0;
-  Iterator current = begin;
-  while (current != nullptr && current != end) {
-    ++count;
-    current = find_bigger(current);
-  }
-
-  if (current == end) {
-    return count;
-  }
-
-  return -1;
 }
 
 template <typename KeyType, typename Comparator>
@@ -242,8 +244,16 @@ typename AvlTree<KeyType, Comparator>::Node*
 AvlTree<KeyType, Comparator>::left_rotate(Node* node) {
   Node* right_child = node->right;
   node->right = right_child->left;
+  
+  if (right_child->left != nullptr) {
+    right_child->left->parent = node;
+  }
+  
   right_child->left = node;
-
+  
+  right_child->parent = node->parent;
+  node->parent = right_child;
+  
   update_height(node);
   update_height(right_child);
 
@@ -255,8 +265,16 @@ typename AvlTree<KeyType, Comparator>::Node*
 AvlTree<KeyType, Comparator>::right_rotate(Node* node) {
   Node* left_child = node->left;
   node->left = left_child->right;
+  
+  if (left_child->right != nullptr) {
+    left_child->right->parent = node;
+  }
+  
   left_child->right = node;
-
+  
+  left_child->parent = node->parent;
+  node->parent = left_child;
+  
   update_height(node);
   update_height(left_child);
 
@@ -298,7 +316,7 @@ int AvlTree<KeyType, Comparator>::get_balance(Node* node) {
 template <typename KeyType, typename Comparator>
 AvlTree<KeyType, Comparator>::Iterator
 AvlTree<KeyType, Comparator>::find_lower_bound(Iterator node,
-                                               const KeyType& key) {
+                                               const KeyType& key) const {
   Node* result = nullptr;
   Node* current = node;
 
@@ -317,7 +335,7 @@ AvlTree<KeyType, Comparator>::find_lower_bound(Iterator node,
 template <typename KeyType, typename Comparator>
 AvlTree<KeyType, Comparator>::Iterator
 AvlTree<KeyType, Comparator>::find_upper_bound(Iterator node,
-                                               const KeyType& key) {
+                                               const KeyType& key) const {
   Node* result = nullptr;
   Node* current = node;
 
@@ -407,7 +425,6 @@ void AvlTree<KeyType, Comparator>::print_tree(const std::string& prefix,
   if (node != nullptr) {
     std::cout << prefix;
     std::cout << (is_left ? "├──" : "└──");
-    std::cout << node->data;
     std::cout << "value: " << node->data << " parent ref: " << node->parent << std::endl;
 
     print_tree(prefix + (is_left ? "│   " : "    "), node->left, true);
