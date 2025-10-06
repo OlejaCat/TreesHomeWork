@@ -4,7 +4,9 @@
 #include <set>
 #include <vector>
 #include <string>
+
 #include "trees.hpp"
+#include "timer.hpp"
 
 template <typename Container, typename DistanceFunc, typename KeyType>
 long RangeQuery(const Container& set, DistanceFunc distance_func, KeyType lhs, KeyType rhs) {
@@ -14,8 +16,11 @@ long RangeQuery(const Container& set, DistanceFunc distance_func, KeyType lhs, K
 }
 
 template<typename Container, typename RangeQueryFunc>
-std::vector<long> RunTest(std::istream& istream, Container& container, RangeQueryFunc range_query_func) {
+std::pair<std::vector<long>, double> RunTest(std::istream& istream, Container& container, RangeQueryFunc range_query_func) {
   std::vector<long> answer;
+
+  timer::Timer solution_timer;
+  solution_timer.start();
 
   char query;
   while (istream >> query) {
@@ -34,7 +39,7 @@ std::vector<long> RunTest(std::istream& istream, Container& container, RangeQuer
     }
   }
 
-  return answer;
+  return {answer, solution_timer.elapsed_milliseconds()};
 }
 
 template<typename Iterator>
@@ -77,13 +82,17 @@ TEST_P(TreeRangeQueryTest, CompareAvlTreeWithStdSet) {
   }
 
   trees::AvlTree<int> avl_tree;
-  auto avl_result = RunTest(input_file, avl_tree, RangeQueryAvlTree<int>);
+  auto [avl_result, avl_time] = RunTest(input_file, avl_tree, RangeQueryAvlTree<int>);
 
   input_file.clear();
   input_file.seekg(0);
 
   std::set<int> std_set;
-  auto std_result = RunTest(input_file, std_set, RangeQueryStdSet<int>);
+  auto [std_result, std_time] = RunTest(input_file, std_set, RangeQueryStdSet<int>);
+
+  std::cout << "Test " << test_number_ << " timing results:\n";
+  std::cout << "  Difference: " << (avl_time - std_time) << " ms\n";
+  std::cout << "  AVL is " << (avl_time / std_time) << "x slower than std::set\n";
 
   EXPECT_EQ(avl_result.size(), std_result.size()) 
     << "Different result sizes for test " << test_number_;

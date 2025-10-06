@@ -1,6 +1,6 @@
--O3
+-O2
 -DNDEBUG
--flto
+-flto=auto
 -Wall
 -Wextra
 -Wpedantic
