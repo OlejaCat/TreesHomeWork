@@ -75,6 +75,8 @@ class TreeRangeQueryTest : public ::testing::TestWithParam<int> {
 
 TEST_P(TreeRangeQueryTest, CompareAvlTreeWithStdSet) {
   std::string test_file = get_test_file_name();
+  std::cout << "Running test " << test_number_ << " with file: " << test_file << std::endl;
+
   std::ifstream input_file(test_file);
 
   if (!input_file.is_open()) {
